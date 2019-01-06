@@ -36,13 +36,13 @@ class fitness(object):
 			#check for multiple classes
 			if(len(i)==1):
 				score+=1
-			#check for equipment	
-			flag=0
-			for j in i:
-				if (j.assignedcourse.required != roomlist[coursearray.index(i)%len(roomlist)].equip):
-					flag=1
-			if (flag==0):
-				score+=1
+			# #check for equipment	
+			# flag=0
+			# for j in i:
+			# 	if (j.assignedcourse.required != roomlist[coursearray.index(i)%len(roomlist)].equip):
+			# 		flag=1
+			# if (flag==0):
+			# 	score+=1
 			#check for seat number
 			flag=0
 			for k in i:
@@ -91,12 +91,14 @@ class Schedule(object):
 		# print str(self.chromosome.genes)
 
 	def initialize(self):
+		#print "sdsd"
 		counter=0
 		for i in cclist:
 			for j in range(i.assignedcourse.slots):
 				# print "fffffff"
 				# print str(self.length)
 				counter+=1
+				#print "in"
 				self.chromosome.geneArray[random.randrange(0, self.chromosome.genes)].append(i)
 		# print "counter"
 		# print counter
@@ -135,19 +137,20 @@ def hashReverse(schHash,length):
 def createInitialPopulation(length, generationSize):
 	generation=[]
 	for i in range(0, generationSize):
+		#print "ds"
 		sch=Schedule(length)
-		# print "zzzzz"
-		# print length
 		sch.initialize()
 		generation.append(sch)
 	return generation
 
 def rank(population):
+	# print "cp"
+	# print population
 	fitnessResults = {}
 	for i in range(0,len(population)):
 		fitnessResults[i] = fitness(population[i]).computeScore()
-		# print "pop score"
-		# print fitnessResults[i]
+		print "pop score"
+		print fitnessResults[i]
 	return sorted(fitnessResults.items(), key = operator.itemgetter(1), reverse = True)
 
 def tournamentSelection(rankedPop, eliteSize):
@@ -155,7 +158,7 @@ def tournamentSelection(rankedPop, eliteSize):
 	dataframe = pandas.DataFrame(numpy.array(rankedPop), columns=["Index","Fitness"])
 	dataframe['cumlative_sum'] = dataframe.Fitness.cumsum()
 	dataframe['cumlative_percentage'] = 100*dataframe.cumlative_sum/dataframe.Fitness.sum()
-	print dataframe
+	#print dataframe
 
 	# print dataframe
 	for i in range(0, eliteSize):
@@ -181,6 +184,9 @@ def matingPool(population, selectionPool):
     return matingpool
 
 def breed(schParentA, schParentB):
+	print "bbbbbbbb"
+	print schParentA
+	print schParentB
 	child = {}
 	PAhash = hashing(schParentA)
 	PBhash = hashing(schParentB)
@@ -211,13 +217,13 @@ def breed(schParentA, schParentB):
 	child.update(childP1)
 	child.update(childP2)
 	child.update(childP3)
-	childSch = Schedule(schParentA.getlength())
+	childSch = hashReverse(child,schParentA.getlength())
 
 	return childSch
 
 def crossover(matingpool, eliteSize):
-	#print "cross"
-	#print len(matingpool)
+	print "cross"
+	print matingpool
 	nextGen = []
 	randPool = random.sample(matingpool, len(matingpool))
 
@@ -225,8 +231,12 @@ def crossover(matingpool, eliteSize):
 		nextGen.append(matingpool[i])
 
 	for i in range(0, len(matingpool) - eliteSize):
+		# print "iiiii"
+		# print i
 		child = breed(matingpool[i], matingpool[len(matingpool)-i-1])
 		nextGen.append(child)
+	# print "cross2"
+	# print nextGen
 	return nextGen
 
 def mutate(schHash, mutationRate, mutationSize):
@@ -243,12 +253,16 @@ def mutate(schHash, mutationRate, mutationSize):
 	return schHash
 
 def mutatePop(population, mutationRate, mutationSize):
-	#print "muin"
-	#print len(population)
+	# print "muin"
+	# print population
 	mutatedPop = []
 
 	for i in range(0, len(population)):
+		# print "poppppppp"
+		# print population[i]
 		mutatedHash=hashing(population[i])
+		# print "mut"
+		# print mutatedHash
 		mutated = mutate(mutatedHash, mutationRate, mutationSize)
 		mutatedPop.append(mutated)
 
@@ -259,20 +273,30 @@ def mutatePop(population, mutationRate, mutationSize):
 
 def getNextGen(currentGen, eliteSize, mutationRate, mutationSize):
 	popRanked = rank(currentGen)
+	# print "step1"
+	# print popRanked
 	selectionResults = tournamentSelection(popRanked, eliteSize)
+	# print "step2"
+	# print selectionResults
 	matingpool = matingPool(currentGen, selectionResults)
+	print "sdsdsdsdsdsdsdsd"
+	print matingpool
 	children = crossover(matingpool, eliteSize)
+	# print"cssss"
+	# print children
 	nextGenHashes = mutatePop(children, mutationRate, mutationSize)
-	#print "ngh"
-	#print len(nextGenHashes)
+	# print "hshshs"
+	# print nextGenHashes
 	nextGeneration=[]
 	for i in nextGenHashes:
 		# print "sdsdsdsdsd"
 		# print len(i)
 		individual=hashReverse(i,len(currentGen))
-		#print type(individual)
+		# print "ind"
+		# print individual
 		nextGeneration.append(individual)
-
+	# print "next"
+	# print nextGeneration
 	return nextGeneration
 
 def displayPop(population):
@@ -284,7 +308,7 @@ def displayPop(population):
 def geneticAlgorithm(popSize, days, slots, rooms, eliteSize, mutationRate, mutationSize, generations):
 	length=days*slots*rooms
 	pop = createInitialPopulation(length, popSize)
-	print "init"
+	#print "init"
 	#displayPop(pop)
 	# print len(pop)
 	# print "sds"
@@ -294,8 +318,8 @@ def geneticAlgorithm(popSize, days, slots, rooms, eliteSize, mutationRate, mutat
 	for i in range(0, generations):
 		pop = getNextGen(pop, eliteSize, mutationRate, mutationSize)
 		#print rank(pop)
-		# dataframe = pandas.DataFrame(numpy.array(pop))
-		# print dataframe
+		#dataframe = pandas.DataFrame(numpy.array(pop))
+		#print dataframe
 		#print rank(pop)[0][1]
 		#print "pop" + str(i)
 
@@ -304,7 +328,7 @@ def geneticAlgorithm(popSize, days, slots, rooms, eliteSize, mutationRate, mutat
 	bestSchedule = pop[bestScheduleIndex]
 	return bestSchedule
 
-geneticAlgorithm(popSize=20,days=4,slots=2,rooms=2, eliteSize=10, mutationRate=0.01, mutationSize=1,generations=50)
+geneticAlgorithm(popSize=10,days=2,slots=2,rooms=2, eliteSize=0, mutationRate=0.01, mutationSize=1,generations=10)
 
 
 
