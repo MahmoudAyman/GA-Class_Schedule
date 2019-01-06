@@ -105,12 +105,9 @@ class Schedule(object):
 
 	def populateSchedule(self,hashtable):
 		for i in hashtable.keys():
-			# print "ga"
-			# print self.chromosome.geneArray
-			#print "length"
-			#print self.chromosome.genes
-			#print i
-			self.chromosome.geneArray[(i/10)].append(hashtable[i])
+			temp=str(i)[-1]
+			temp2=int(temp)
+			self.chromosome.geneArray[(temp2)].append(hashtable[i])
 
 	def getGeneArray(self):
 		return self.chromosome.geneArray
@@ -149,8 +146,8 @@ def rank(population):
 	fitnessResults = {}
 	for i in range(0,len(population)):
 		fitnessResults[i] = fitness(population[i]).computeScore()
-		print "pop score"
-		print fitnessResults[i]
+		# print "pop score"
+		# print fitnessResults[i]
 	return sorted(fitnessResults.items(), key = operator.itemgetter(1), reverse = True)
 
 def tournamentSelection(rankedPop, eliteSize):
@@ -158,7 +155,7 @@ def tournamentSelection(rankedPop, eliteSize):
 	dataframe = pandas.DataFrame(numpy.array(rankedPop), columns=["Index","Fitness"])
 	dataframe['cumlative_sum'] = dataframe.Fitness.cumsum()
 	dataframe['cumlative_percentage'] = 100*dataframe.cumlative_sum/dataframe.Fitness.sum()
-	#print dataframe
+	print dataframe
 
 	# print dataframe
 	for i in range(0, eliteSize):
@@ -184,9 +181,9 @@ def matingPool(population, selectionPool):
     return matingpool
 
 def breed(schParentA, schParentB):
-	print "bbbbbbbb"
-	print schParentA
-	print schParentB
+	# print "bbbbbbbb"
+	# print schParentA
+	# print schParentB
 	child = {}
 	PAhash = hashing(schParentA)
 	PBhash = hashing(schParentB)
@@ -222,8 +219,8 @@ def breed(schParentA, schParentB):
 	return childSch
 
 def crossover(matingpool, eliteSize):
-	print "cross"
-	print matingpool
+	# print "cross"
+	# print matingpool
 	nextGen = []
 	randPool = random.sample(matingpool, len(matingpool))
 
@@ -279,8 +276,8 @@ def getNextGen(currentGen, eliteSize, mutationRate, mutationSize):
 	# print "step2"
 	# print selectionResults
 	matingpool = matingPool(currentGen, selectionResults)
-	print "sdsdsdsdsdsdsdsd"
-	print matingpool
+	# print "sdsdsdsdsdsdsdsd"
+	# print matingpool
 	children = crossover(matingpool, eliteSize)
 	# print"cssss"
 	# print children
@@ -318,8 +315,8 @@ def geneticAlgorithm(popSize, days, slots, rooms, eliteSize, mutationRate, mutat
 	for i in range(0, generations):
 		pop = getNextGen(pop, eliteSize, mutationRate, mutationSize)
 		#print rank(pop)
-		#dataframe = pandas.DataFrame(numpy.array(pop))
-		#print dataframe
+		# dataframe = pandas.DataFrame(numpy.array(pop))
+		# print dataframe
 		#print rank(pop)[0][1]
 		#print "pop" + str(i)
 
@@ -328,7 +325,7 @@ def geneticAlgorithm(popSize, days, slots, rooms, eliteSize, mutationRate, mutat
 	bestSchedule = pop[bestScheduleIndex]
 	return bestSchedule
 
-geneticAlgorithm(popSize=10,days=2,slots=2,rooms=2, eliteSize=0, mutationRate=0.01, mutationSize=1,generations=10)
+geneticAlgorithm(popSize=10000,days=2,slots=2,rooms=2, eliteSize=1, mutationRate=0.01, mutationSize=1,generations=10)
 
 
 
